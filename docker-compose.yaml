@@ -1,0 +1,88 @@
+networks:
+  mail:
+    external: true
+  web:
+    name: web
+  back:
+    driver: bridge
+    internal: true
+services:
+  web:
+    image: nginx
+    restart: always
+    volumes:
+      - ./data/web/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./data/nextcloud/html:/var/www/html:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.cloud.rule=Host(`cloud.jdav-freiburg.de`)"
+      - "traefik.http.routers.cloud.entrypoints=web-secure"
+      - "traefik.http.routers.cloud.tls.certresolver=letsencrypt"
+      - "traefik.http.middlewares.cloud-rep.redirectregex.regex=https://(.*)/.well-known/(card|cal)dav"
+      - "traefik.http.middlewares.cloud-rep.redirectregex.replacement=https://$$1/remote.php/dav/"
+      - "traefik.http.middlewares.cloud-rep.redirectregex.permanent=true"
+      - "traefik.http.middlewares.cloud-rep2.redirectregex.regex=https?://([^/]*)(/.well-known[^#]*)"
+      - "traefik.http.middlewares.cloud-rep2.redirectregex.replacement=https://$${1}/index.php$${2}"
+      - "traefik.http.middlewares.cloud-rep2.redirectregex.permanent=true"
+      - "traefik.http.middlewares.cloud-header.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.cloud-header.headers.stsSeconds=15552000"
+      - "traefik.http.routers.cloud.middlewares=cloud-rep,cloud-rep2,cloud-header"
+    depends_on:
+      - app
+    networks:
+      - back
+      - web
+      - default
+    # Uncomment for local development and testing
+    # ports:
+    #   - "80:80"
+
+  app:
+    image: nextcloud:30-fpm
+    restart: always
+    env_file:
+      - nextcloud.env
+    volumes:
+      - ./data/nextcloud/html:/var/www/html
+      - ./data/nextcloud/data:/data
+      - ./data/www.conf:/usr/local/etc/php-fpm.d/www.conf:ro
+    depends_on:
+      - db
+      - redis
+    networks:
+      - back
+      - mail
+      - default
+
+  db:
+    image: postgres:14
+    restart: always
+    volumes:
+      - ./data/postgresdb:/var/lib/postgresql/data
+    env_file:
+      - nextcloud.env
+    networks:
+      - back
+
+  redis:
+    image: redis:alpine
+    restart: always
+    volumes:
+      - ./data/redis:/data
+    networks:
+      - back
+
+  cron:
+    image: nextcloud:29-fpm
+    restart: always
+    volumes:
+      - ./data/nextcloud/html:/var/www/html
+      - ./data/nextcloud/data:/data
+    env_file:
+      - nextcloud.env
+    entrypoint: /cron.sh
+    depends_on:
+      - db
+      - redis
+    networks:
+      - back
