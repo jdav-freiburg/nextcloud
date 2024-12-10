@@ -1,2 +1,9 @@
+# Environments
 *.env
+
+# Data
 /data
+*.tar
+
+# Mac
+.DS_Store
