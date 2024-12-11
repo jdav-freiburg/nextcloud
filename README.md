@@ -30,3 +30,7 @@ If not disabled, it will lead to `500 Internal Server Error`
 Go to [http://localhost/](http://localhost/).
 
 In case you have trouble with https being enforced, go to `./data/nextcloud/html/config/config.php` and set `'overwriteprotocol' => 'http',`.
+
+## Debugging
+
+Error logs: [Admin > Logging](http://localhost/settings/admin/logging)
