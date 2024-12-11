@@ -75,7 +75,7 @@ docker compose -f docker-compose.yaml -f docker-compose.dev.yaml up -d
 
 You can access the local Nextcloud instance at [http://localhost/](http://localhost/).
 
-> [!INFO]
+> [!NOTE]
 > **Must** be **HTTP** and not https!
 
 ### Working with the local instance
