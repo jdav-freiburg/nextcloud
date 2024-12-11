@@ -33,9 +33,6 @@ services:
       - back
       - web
       - default
-    # Uncomment for local development and testing
-    # ports:
-    #   - "80:80"
 
   app:
     image: nextcloud:30-fpm
