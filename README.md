@@ -1,5 +1,8 @@
 # JDAV Nextcloud
 
+> [!WARNING]
+> Bisher ist keine serverseitige Verschlüsselung aktiviert. Das darf auch nicht geändert werden sobald eine zentrale Authentifizieruzng mit **OpenId** eingerichtet ist, da dies nur mit **LADP** möglich ist: [Datenverlust bei Verschlüsselung mit OpenID/SAML](https://docs.goauthentik.io/integrations/services/nextcloud/#what-is-nextcloud)
+
 ## Local setup (development only)
 
 This describes how to create a local Nextcloud instance with a database backup.
